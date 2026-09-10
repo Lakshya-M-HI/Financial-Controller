@@ -2,20 +2,122 @@
 
 model User {
   id        Int      @id @default(autoincrement())
+  name      String
   email     String   @unique
-  username  String?
-  name      String?
-  posts     Post[]
+  phone     String?
+  language  String?
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+
+  entrepreneur EntrepreneurProfile?
+}
+
+model EntrepreneurProfile{
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+
+  village   String
+  block     String
+  district  String
+  state     String
+
+  latitude  Float?
+  longitude Float?
+
+  user      User              @relation(fields: [userId], references: [id])
+  proposals BusinessProposal[]
+
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+
+model BusinessProposal {
+  id                    Int      @id @default(autoincrement())
+  entrepreneurId        Int
+
+  businessCategory      String
+  businessName          String?
+  availableMarginCapital Float
+
+  entrepreneur           EntrepreneurProfile @relation(
+    fields: [entrepreneurId],
+    references: [id]
+  )
+
+  feasibilityReport      FeasibilityReport?
+  financialPlan          FinancialPlan?
+
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
+}
+
+
+model FeasibilityReport {
+  id                 Int      @id @default(autoincrement())
+  proposalId         Int      @unique
+
+  marketReach        String?
+  opportunityAnalysis String?
+  swotAnalysis       String?
+  threats            String?
+  competitorMapping  String?
+  productMarketValue String?
+
+  confidenceScore    Float?
+  dataSources        String?
+
+  proposal           BusinessProposal @relation(
+    fields: [proposalId],
+    references: [id]
+  )
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+
+model FinancialPlan {
+  id                    Int      @id @default(autoincrement())
+  proposalId            Int      @unique
+
+  availableMarginCapital Float
+  projectCost            Float
+  maximumLoanAmount      Float
+
+  schemeType             String
+  interestRate           Float
+  tenureYears            Int
+  moratoriumMonths       Int
+
+  emi                    Float?
+  repaymentFrequency     String?
+
+  proposal               BusinessProposal @relation(
+    fields: [proposalId],
+    references: [id]
+  )
+
+  repaymentSchedules     RepaymentSchedule[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+
+
+model RepaymentSchedule {
+  id              Int      @id @default(autoincrement())
+  financialPlanId Int
+
+  installmentNumber Int
+  dueDate           TimestamptzString
+
+  principalAmount   Float
+  interestAmount    Float
+  totalPayment      Float
+  remainingBalance  Float
+
+  financialPlan     FinancialPlan @relation(
+    fields: [financialPlanId],
+    references: [id]
+  )
 }

@@ -72,3 +72,9 @@ Desktop.ini
 # TypeScript
 # ========================================
 *.tsbuildinfo
+
+# ========================================
+# Local Documentation / Scratch Notes
+# ========================================
+system_structure.md
+system_structure*.md

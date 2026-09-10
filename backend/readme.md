@@ -4,154 +4,77 @@ This directory contains the Node.js TypeScript backend for the **Financial Contr
 
 ---
 
-## 📋 Summary of Work Done (From Folder Creation)
-
-Here is a step-by-step breakdown of everything initialized and configured in this backend repository from scratch:
-
-### 1. Workspace Initialization & Project Setup
-- Created the root `Financial-Controller` project workspace containing dedicated `backend` and `frontend` subdirectories.
-- Initialized Node.js environment inside `backend/` with `package.json`.
-```bash
-npm init -y
-```
-- Configured ES Module support by setting `"type": "module"` in `package.json`.
-
-- Installed dependencies and their types to use with typescript.
-
-
-### 2. Dependency Installation
-Installed core production dependencies and TypeScript definitions:
-- **Web Server & Middleware**:
-  - `express` (`^5.2.1`) - Express v5 application framework.
-  - `cors` (`^2.8.6`) & `@types/cors` (`^2.8.19`) - Enabling Cross-Origin Resource Sharing.
-  - `dotenv` (`^17.4.2`) - Managing environment configuration variables.
-- **Database & ORM Layer**:
-  - `prisma` (`^8.0.0-rc.12`) & `@prisma/client` (`^7.10.0`) - Modern ORM and database client toolset.
-  - `mongoose` (`^9.9.4`) - Object Data Modeling library for MongoDB.
-- **TypeScript Support**:
-  - `@types/express` (`^5.0.6`) - Type definitions for Express.
-
-```bash
-
-npm i express dotenv cors mongoose
-
-npm install --save-dev typescript tsx @types/node @types/express @types/cors dotenv express mongoose prisma
-```
-
-### 3. Layered Directory Architecture
-Organized application code under `src/` following a clean separation of concerns pattern:
-```
-backend/
-├── src/
-│   ├── config/       # Database connections & environment configuration
-│   ├── controllers/  # Express route handlers & request logic
-│   ├── models/       # Data schemas and database models
-│   ├── routes/       # API router & endpoint definitions
-│   ├── services/     # Core business logic services
-│   ├── utils/        # Helper functions & shared utilities
-│   └── server.ts     # Application entry point & server setup
-├── .env              # Server environment variables
-├── .env.local        # Local environment overrides
-├── .gitignore        # Git ignore directives (node_modules, envs, logs)
-├── package.json      # NPM dependencies and runner scripts
-├── prisma.config.ts  # Prisma CLI & agent skills configuration
-└── readme.md         # Project history & developer guide
-```
-
-### 4. Express Server Setup (`src/server.ts`)
-- Created `src/server.ts` entry point script.
-- Configured environment variables via `dotenv.config()`.
-- Applied global middleware:
-  - `express.json()` for parsing incoming JSON request bodies.
-  - `cors()` for cross-origin access.
-- Implemented root route handler (`GET /`) logging `"hello world"`.
-- Set up HTTP server listener on process port (`process.env.PORT`).
-
-```bash
-
-import express, { Request, Response } from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-
-dotenv.config();
-
-const PORT = process.env.PORT;
-
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
-app.get("/", (req: Request, res: Response) => {
-  console.log("hello world");
-});
-
-app.listen(PORT, () => {
-  console.log(`the server is running at port : ${PORT}`);
-});
-```
-
-- Set up `dev` script to start the server with watch mode in package.json.
-```bash
-scripts = "node --watch src/server.js";
-npm run dev
-```
-
-### 5. Environment & Git Settings
-- Created `.env` setting `PORT = 5000`.
-- Created `.env.local` for local environment configurations.
-- Formulated `.gitignore` ignoring `node_modules/`, `.env*` files, build output (`dist/`, `build/`), logs, IDE artifacts, and database dumps.
-
-### 6. Prisma ORM & Tooling Setup
-
-- Installed prisma dependecies
-```bash
-npm install prisma @prisma/client
-```
-
-- Initialised prisma
-```bash
-npx prisma init
-```
-
-- Got `prisma.config.ts` with agent skills configuration (`claude`, `cursor`, `agents`, `devin`).
-
----
-
-## 🛠 Tech Stack
-
-- **Runtime**: Node.js (ES Modules)
-- **Language**: TypeScript
-- **Framework**: Express v5
-- **Databases / ORMs**: Prisma ORM, Mongoose (MongoDB)
-- **Configuration**: Dotenv
-
----
-
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v18+ recommended)
-- npm or yarn
+- **Node.js** (v18+ or v20+ LTS recommended)
+- **PostgreSQL** (v14+ running locally or remotely on port 5432)
+- **npm** (bundled with Node.js)
 
-### Installation
+### 1. Installation
+Navigate to the backend folder and install the project dependencies:
 ```bash
-# Navigate to the backend directory
 cd backend
-
-# Install dependencies
 npm install
 ```
 
-### Development Server
+### 2. Environment Configuration
+Create a `.env` file in the `backend/` root directory (or copy from `.env.example` if available):
+```env
+PORT = 5000
+DATABASE_URL="postgresql://postgres:<password>@localhost:5432/financial_controller"
+```
+
+### 3. Database Initialization & Contract Emission
+Ensure your PostgreSQL server is active and the `financial_controller` database exists. Then compile the Prisma Schema Contract into runtime definitions and TypeScript types:
 ```bash
-# Start server in watch mode
+npm run contract:emit
+```
+> **What this does**: Reads `src/prisma/contract.prisma` and emits `src/prisma/contract.json` and `src/prisma/contract.d.ts`, powering the typed database client in `src/prisma/db.ts`.
+
+### 4. Run Development Server
+Start the Express server in watch mode (auto-restarts on code changes):
+```bash
 npm run dev
 ```
+
+The server will be running at `http://localhost:5000` (or the port defined in your `.env`).
 
 ---
 
 ## 📜 Available NPM Scripts
 
-- `npm run dev`: Runs the backend server with hot-reloading (`node --watch`).
-- `npm run postinstall`: Triggers Prisma skills synchronization.
+| Script | Command | Description |
+| :--- | :--- | :--- |
+| `npm run dev` | `node --watch src/server.js` | Launches the server with native Node.js watch mode for live reloading during development. |
+| `npm run contract:emit` | `prisma contract emit` | Compiles the PSL schema contract into `contract.json` and TypeScript typings `contract.d.ts`. |
+| `npm run postinstall` | `prisma skills sync \|\| exit 0` | Automatically synchronizes Prisma agent skills upon package installation. |
+
+---
+
+## 🗄️ Database & Domain Models Overview
+
+The database is managed through Prisma's contract-driven PostgreSQL ORM (`src/prisma/contract.prisma`), featuring:
+- **`User`**: Base user identity, email, and language preferences.
+- **`EntrepreneurProfile`**: Geographic information (village, block, district, state) and GPS coordinates.
+- **`BusinessProposal`**: Loan applications, business categorization, and margin equity.
+- **`FeasibilityReport`**: Automated SWOT analysis, competitor mapping, and AI feasibility scores.
+- **`FinancialPlan`**: Project costs, maximum loan eligibility, interest rates, moratorium periods, and monthly EMIs.
+- **`RepaymentSchedule`**: Amortization installments, payment due dates, principal, and interest allocations.
+
+### Querying the Database
+All database operations use the centralized, strongly-typed client exported from `src/prisma/db.ts`:
+```typescript
+import { db } from './prisma/db.js';
+
+// Example: Fetching user profiles with their business proposals
+const users = await db.user.findMany({
+  include: {
+    entrepreneur: {
+      include: { proposals: true }
+    }
+  }
+});
+```
+
+For detailed architectural breakdown, setup history, and comprehensive explanations of each module, refer to the internal documentation in `system_structure.md`.
