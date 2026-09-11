@@ -11,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/api/health", (req: Request, res: Response) => {
   console.log("hello world");
 });
 
